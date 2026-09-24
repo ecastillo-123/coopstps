@@ -14,6 +14,7 @@ return [
     | El orden de este arreglo es el orden de aparición en cada barra.
     | 'ubicacion' => 'superior' coloca el módulo en la barra horizontal con
     | submenús desplegables al hacer clic; por defecto van al menú lateral.
+    | 'color' elige la paleta del botón superior (blue, emerald, amber, violet, rose).
     |
     */
 
@@ -21,6 +22,7 @@ return [
         'administracion' => [
             'nombre' => 'Administrador',
             'ubicacion' => 'superior',
+            'color' => 'blue',
             'descripcion' => 'Centros de trabajo, usuarios y preferencias de avisos.',
             'icono' => 'settings',
             'permiso' => 'administracion.gestionar',
@@ -34,6 +36,7 @@ return [
         'configuracion' => [
             'nombre' => 'Configuración',
             'ubicacion' => 'superior',
+            'color' => 'emerald',
             'descripcion' => 'Registros patronales, sucursales y estructura organizacional.',
             'icono' => 'cog',
             'permiso' => 'configuracion.gestionar',
@@ -47,6 +50,7 @@ return [
         'documentacion' => [
             'nombre' => 'Documentación',
             'ubicacion' => 'superior',
+            'color' => 'amber',
             'descripcion' => 'Expediente documental del centro de trabajo y cargas masivas.',
             'icono' => 'archive',
             'permiso' => 'documentacion.gestionar',
@@ -59,6 +63,7 @@ return [
         'contractual' => [
             'nombre' => 'Contractual',
             'ubicacion' => 'superior',
+            'color' => 'violet',
             'descripcion' => 'Contratos individuales y subcontratación (layout SAT).',
             'icono' => 'document',
             'permiso' => 'contractual.gestionar',
@@ -71,6 +76,7 @@ return [
         'colaboradores' => [
             'nombre' => 'Colaboradores y Trabajadores',
             'ubicacion' => 'superior',
+            'color' => 'rose',
             'descripcion' => 'Administrador de colaboradores y trabajadores.',
             'icono' => 'users',
             'permiso' => 'colaboradores.gestionar',

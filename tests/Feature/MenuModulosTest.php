@@ -148,6 +148,69 @@ class MenuModulosTest extends TestCase
         $this->assertStringNotContainsString('Contratos individuales', $lateral);
     }
 
+    public function test_cada_modulo_superior_declara_un_color_distinto(): void
+    {
+        $colores = collect(config('sistema.modulos'))
+            ->filter(fn (array $modulo): bool => ($modulo['ubicacion'] ?? 'lateral') === 'superior')
+            ->pluck('color');
+
+        $this->assertNotContains(null, $colores->all(), 'Todo módulo superior debe declarar un color.');
+
+        $this->assertSame(
+            $colores->count(),
+            $colores->unique()->count(),
+            'Los módulos superiores deben usar colores distintos entre sí.'
+        );
+    }
+
+    public function test_los_botones_superiores_usan_el_color_configurado(): void
+    {
+        $html = $this->actingAs($this->usuarioAdministrador())
+            ->get('/dashboard')
+            ->assertOk()
+            ->getContent();
+
+        $clasesEsperadas = [
+            'blue' => 'bg-blue-600',
+            'emerald' => 'bg-emerald-600',
+            'amber' => 'bg-amber-500',
+            'violet' => 'bg-violet-600',
+            'rose' => 'bg-rose-600',
+        ];
+
+        foreach (config('sistema.modulos') as $modulo) {
+            if (($modulo['ubicacion'] ?? 'lateral') !== 'superior') {
+                continue;
+            }
+
+            $this->assertArrayHasKey(
+                $modulo['color'],
+                $clasesEsperadas,
+                "El color [{$modulo['color']}] no existe en la paleta del layout."
+            );
+
+            $this->assertStringContainsString($clasesEsperadas[$modulo['color']], $html);
+        }
+    }
+
+    public function test_el_menu_lateral_tiene_fondo_azul_claro(): void
+    {
+        $html = $this->actingAs($this->usuarioAdministrador())
+            ->get('/dashboard')
+            ->assertOk()
+            ->getContent();
+
+        $inicioAside = strpos($html, '<aside');
+        $marcaLateral = strpos($html, 'data-nav="lateral"');
+
+        $this->assertNotFalse($inicioAside, 'No se encontró el menú lateral.');
+        $this->assertNotFalse($marcaLateral, 'No se encontró la barra lateral.');
+
+        $aside = substr($html, $inicioAside, $marcaLateral - $inicioAside);
+
+        $this->assertStringContainsString('bg-sky-50', $aside);
+    }
+
     public function test_un_usuario_sin_permisos_no_ve_modulos_administrativos(): void
     {
         $user = User::factory()->create();

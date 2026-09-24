@@ -13,6 +13,16 @@
     $rutaActual = request()->route()?->getName();
     $moduloEstaActivo = fn (array $modulo): bool => collect($modulo['items'])
         ->contains(fn ($item) => $item['ruta'] !== null && $item['ruta'] === $rutaActual);
+
+    // Clases literales para que Tailwind las detecte al compilar.
+    $paleta = [
+        'blue' => ['bg-blue-600 hover:bg-blue-500', 'text-blue-700 border-blue-200'],
+        'emerald' => ['bg-emerald-600 hover:bg-emerald-500', 'text-emerald-700 border-emerald-200'],
+        'amber' => ['bg-amber-500 hover:bg-amber-400', 'text-amber-700 border-amber-200'],
+        'violet' => ['bg-violet-600 hover:bg-violet-500', 'text-violet-700 border-violet-200'],
+        'rose' => ['bg-rose-600 hover:bg-rose-500', 'text-rose-700 border-rose-200'],
+    ];
+    $paletaDe = fn (array $modulo): array => $paleta[$modulo['color'] ?? 'blue'] ?? $paleta['blue'];
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
@@ -27,7 +37,7 @@
 <div x-data="{ lateral: false }" class="flex h-screen flex-col overflow-hidden">
 
     {{-- Barra superior --}}
-    <header class="shrink-0 border-b border-slate-800 bg-slate-900 text-slate-200">
+    <header class="relative z-30 shrink-0 border-b border-slate-800 bg-slate-900 text-slate-200">
 
         <div class="flex h-14 items-center gap-3 px-4">
             <button type="button"
@@ -62,11 +72,14 @@
         </div>
 
         {{-- Navegación principal: solo el nombre del módulo, submenús al hacer clic --}}
-        <nav data-nav="superior" class="flex items-center gap-1 overflow-x-auto px-3 pb-2">
+        <nav data-nav="superior" class="flex flex-wrap items-center gap-1.5 px-3 pb-2.5">
             @foreach ($modulosSuperiores as $clave => $modulo)
                 @can($modulo['permiso'])
-                    @php $activo = $moduloEstaActivo($modulo); @endphp
-                    <div class="relative shrink-0"
+                    @php
+                        $activo = $moduloEstaActivo($modulo);
+                        [$colorBoton, $colorAcento] = $paletaDe($modulo);
+                    @endphp
+                    <div class="relative"
                          x-data="{ abierto: false }"
                          x-on:keydown.escape.window="abierto = false">
                         <button type="button"
@@ -75,9 +88,9 @@
                                 x-bind:aria-expanded="abierto ? 'true' : 'false'"
                                 aria-haspopup="true"
                                 @class([
-                                    'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wide transition',
-                                    'bg-indigo-500 text-white' => $activo,
-                                    'text-slate-300 hover:bg-white/10 hover:text-white' => ! $activo,
+                                    'flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm transition lg:px-3 lg:text-xs',
+                                    $colorBoton,
+                                    'ring-2 ring-white/70 ring-offset-1 ring-offset-slate-900' => $activo,
                                 ])>
                             {{ $modulo['nombre'] }}
                             <svg class="h-3.5 w-3.5 transition-transform duration-150"
@@ -91,7 +104,7 @@
                              x-cloak
                              x-transition.origin.top.left
                              class="absolute left-0 z-50 mt-1 w-64 rounded-lg border border-slate-200 bg-white py-1.5 shadow-xl">
-                            <p class="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                            <p class="mb-1 border-b px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider {{ $colorAcento }}">
                                 {{ $modulo['nombre'] }}
                             </p>
                             <ul>
@@ -128,9 +141,9 @@
         {{-- Menú lateral: módulos secundarios --}}
         <aside x-cloak
                x-bind:class="lateral ? 'translate-x-0' : '-translate-x-full'"
-               class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 -translate-x-full transform flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-200 lg:static lg:z-0 lg:translate-x-0">
+               class="fixed inset-y-0 left-0 z-50 flex w-72 shrink-0 -translate-x-full transform flex-col overflow-y-auto border-r border-sky-100 bg-sky-50 transition-transform duration-200 lg:static lg:z-0 lg:translate-x-0">
 
-            <div class="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-slate-200 px-4 lg:hidden">
+            <div class="flex h-14 shrink-0 items-center justify-between gap-2 border-b border-sky-100 px-4 lg:hidden">
                 <span class="flex items-center gap-2">
                     <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500 text-xs font-bold text-white">
                         ST
@@ -151,7 +164,7 @@
                 @foreach ($modulosLaterales as $clave => $modulo)
                     @can($modulo['permiso'])
                         <div>
-                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-sky-900/60">
                                 {{ $modulo['nombre'] }}
                             </p>
                             <ul class="mt-1.5 space-y-0.5">
@@ -164,15 +177,15 @@
                                             <a href="{{ route($item['ruta']) }}"
                                                @class([
                                                    'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition',
-                                                   'bg-indigo-50 font-medium text-indigo-700' => $rutaActual === $item['ruta'],
-                                                   'text-slate-600 hover:bg-slate-100 hover:text-slate-900' => $rutaActual !== $item['ruta'],
+                                                   'bg-sky-600 font-medium text-white shadow-sm' => $rutaActual === $item['ruta'],
+                                                   'text-slate-700 hover:bg-white hover:text-sky-800' => $rutaActual !== $item['ruta'],
                                                ])>
                                                 {{ $item['nombre'] }}
                                             </a>
                                         @else
                                             <span class="flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm text-slate-400">
                                                 <span>{{ $item['nombre'] }}</span>
-                                                <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+                                                <span class="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-sky-700">
                                                     Pronto
                                                 </span>
                                             </span>
