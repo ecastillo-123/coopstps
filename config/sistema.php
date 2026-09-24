@@ -7,17 +7,20 @@ return [
     | Módulos del sistema
     |---------------------------------------------------------------------------
     |
-    | Fuente única de verdad para el menú lateral, los permisos y los roles.
+    | Fuente única de verdad para la navegación, los permisos y los roles.
     | Cada módulo declara un permiso propio; cada ítem puede declarar el suyo.
     | Un ítem con 'ruta' nulo aún no está implementado y se muestra deshabilitado.
     |
-    | El orden de este arreglo es el orden del menú lateral.
+    | El orden de este arreglo es el orden de aparición en cada barra.
+    | 'ubicacion' => 'superior' coloca el módulo en la barra horizontal con
+    | submenús desplegables al hacer clic; por defecto van al menú lateral.
     |
     */
 
     'modulos' => [
         'administracion' => [
             'nombre' => 'Administrador',
+            'ubicacion' => 'superior',
             'descripcion' => 'Centros de trabajo, usuarios y preferencias de avisos.',
             'icono' => 'settings',
             'permiso' => 'administracion.gestionar',
@@ -30,6 +33,7 @@ return [
 
         'configuracion' => [
             'nombre' => 'Configuración',
+            'ubicacion' => 'superior',
             'descripcion' => 'Registros patronales, sucursales y estructura organizacional.',
             'icono' => 'cog',
             'permiso' => 'configuracion.gestionar',
@@ -42,6 +46,7 @@ return [
 
         'documentacion' => [
             'nombre' => 'Documentación',
+            'ubicacion' => 'superior',
             'descripcion' => 'Expediente documental del centro de trabajo y cargas masivas.',
             'icono' => 'archive',
             'permiso' => 'documentacion.gestionar',
@@ -53,6 +58,7 @@ return [
 
         'contractual' => [
             'nombre' => 'Contractual',
+            'ubicacion' => 'superior',
             'descripcion' => 'Contratos individuales y subcontratación (layout SAT).',
             'icono' => 'document',
             'permiso' => 'contractual.gestionar',
@@ -64,6 +70,7 @@ return [
 
         'colaboradores' => [
             'nombre' => 'Colaboradores y Trabajadores',
+            'ubicacion' => 'superior',
             'descripcion' => 'Administrador de colaboradores y trabajadores.',
             'icono' => 'users',
             'permiso' => 'colaboradores.gestionar',
