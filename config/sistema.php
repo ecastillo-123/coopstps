@@ -11,9 +11,79 @@ return [
     | Cada módulo declara un permiso propio; cada ítem puede declarar el suyo.
     | Un ítem con 'ruta' nulo aún no está implementado y se muestra deshabilitado.
     |
+    | El orden de este arreglo es el orden del menú lateral.
+    |
     */
 
     'modulos' => [
+        'administracion' => [
+            'nombre' => 'Administrador',
+            'descripcion' => 'Centros de trabajo, usuarios y preferencias de avisos.',
+            'icono' => 'settings',
+            'permiso' => 'administracion.gestionar',
+            'items' => [
+                ['nombre' => 'Centros de trabajo', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Usuarios y permisos', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Preferencias de avisos', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'configuracion' => [
+            'nombre' => 'Configuración',
+            'descripcion' => 'Registros patronales, sucursales y estructura organizacional.',
+            'icono' => 'cog',
+            'permiso' => 'configuracion.gestionar',
+            'items' => [
+                ['nombre' => 'Registros patronales', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Centros de trabajo / Sucursales', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Estructura organizacional', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'documentacion' => [
+            'nombre' => 'Documentación',
+            'descripcion' => 'Expediente documental del centro de trabajo y cargas masivas.',
+            'icono' => 'archive',
+            'permiso' => 'documentacion.gestionar',
+            'items' => [
+                ['nombre' => 'Expediente del centro', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Carga masiva de datos', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'contractual' => [
+            'nombre' => 'Contractual',
+            'descripcion' => 'Contratos individuales y subcontratación (layout SAT).',
+            'icono' => 'document',
+            'permiso' => 'contractual.gestionar',
+            'items' => [
+                ['nombre' => 'Contratos individuales', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Subcontratación (SAT)', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'colaboradores' => [
+            'nombre' => 'Colaboradores y Trabajadores',
+            'descripcion' => 'Administrador de colaboradores y trabajadores.',
+            'icono' => 'users',
+            'permiso' => 'colaboradores.gestionar',
+            'items' => [
+                ['nombre' => 'Trabajadores', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Consultas especializadas', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Cargas masivas', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'relaciones' => [
+            'nombre' => 'Relaciones Laborales',
+            'descripcion' => 'Matriz del expediente laboral individual.',
+            'icono' => 'folder',
+            'permiso' => 'relaciones.gestionar',
+            'items' => [
+                ['nombre' => 'Expediente individual', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
         'cumplimiento' => [
             'nombre' => 'Cumplimiento',
             'descripcion' => 'Núcleo de cumplimiento: tablero, indicadores, alertas y reportes.',
@@ -85,74 +155,6 @@ return [
             'items' => [
                 ['nombre' => 'Simulacros de incendio', 'ruta' => null, 'implementado' => false],
                 ['nombre' => 'Evidencia fotográfica', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'colaboradores' => [
-            'nombre' => 'Colaboradores',
-            'descripcion' => 'Administrador de colaboradores y trabajadores.',
-            'icono' => 'users',
-            'permiso' => 'colaboradores.gestionar',
-            'items' => [
-                ['nombre' => 'Trabajadores', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Consultas especializadas', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Cargas masivas', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'relaciones' => [
-            'nombre' => 'Relaciones Laborales',
-            'descripcion' => 'Matriz del expediente laboral individual.',
-            'icono' => 'folder',
-            'permiso' => 'relaciones.gestionar',
-            'items' => [
-                ['nombre' => 'Expediente individual', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'contractual' => [
-            'nombre' => 'Contractual',
-            'descripcion' => 'Contratos individuales y subcontratación (layout SAT).',
-            'icono' => 'document',
-            'permiso' => 'contractual.gestionar',
-            'items' => [
-                ['nombre' => 'Contratos individuales', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Subcontratación (SAT)', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'documentacion' => [
-            'nombre' => 'Documentación',
-            'descripcion' => 'Expediente documental del centro de trabajo.',
-            'icono' => 'archive',
-            'permiso' => 'documentacion.gestionar',
-            'items' => [
-                ['nombre' => 'Expediente del centro', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Carga masiva de datos', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'configuracion' => [
-            'nombre' => 'Configuración',
-            'descripcion' => 'Registros patronales, sucursales y estructura organizacional.',
-            'icono' => 'cog',
-            'permiso' => 'configuracion.gestionar',
-            'items' => [
-                ['nombre' => 'Registros patronales', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Centros de trabajo / Sucursales', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Estructura organizacional', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'administracion' => [
-            'nombre' => 'Administración',
-            'descripcion' => 'Centros de trabajo, usuarios y preferencias de avisos.',
-            'icono' => 'settings',
-            'permiso' => 'administracion.gestionar',
-            'items' => [
-                ['nombre' => 'Centros de trabajo', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Usuarios y permisos', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Preferencias de avisos', 'ruta' => null, 'implementado' => false],
             ],
         ],
     ],

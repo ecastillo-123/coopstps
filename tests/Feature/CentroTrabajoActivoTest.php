@@ -58,7 +58,7 @@ class CentroTrabajoActivoTest extends TestCase
             ->get('/dashboard')
             ->assertOk()
             ->assertSee('Módulo central de cumplimiento')
-            ->assertSee('Seguridad y Salud')
-            ->assertSee('Simulacros');
+            ->assertSee('Indicadores de cumplimiento')
+            ->assertSee('Bienvenido, '.$user->nombre);
     }
 }
