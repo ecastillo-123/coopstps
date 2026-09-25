@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'clave',
@@ -50,5 +51,21 @@ class CentroTrabajo extends Model
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<Trabajador, $this>
+     */
+    public function trabajadores(): HasMany
+    {
+        return $this->hasMany(Trabajador::class);
+    }
+
+    /**
+     * @return HasMany<Hallazgo, $this>
+     */
+    public function hallazgos(): HasMany
+    {
+        return $this->hasMany(Hallazgo::class);
     }
 }

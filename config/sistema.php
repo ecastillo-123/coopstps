@@ -174,6 +174,28 @@ return [
 
     /*
     |---------------------------------------------------------------------------
+    | Permisos de acción independientes de la navegación
+    |---------------------------------------------------------------------------
+    |
+    | Acciones sensibles que no se renderizan como ítems de menú, pero que se
+    | sincronizan con el catálogo de permisos de Spatie.
+    |
+    */
+
+    'permisos' => [
+        'personal.registrar',
+        'personal.modificar',
+        'personal.eliminar',
+        'personal.aprobar',
+        'nom035.registrar',
+        'nom035.modificar',
+        'auditorias.registrar',
+        'auditorias.modificar',
+        'reportes.exportar',
+    ],
+
+    /*
+    |---------------------------------------------------------------------------
     | Roles y sus permisos
     |---------------------------------------------------------------------------
     |
@@ -200,6 +222,11 @@ return [
                 'contractual.gestionar',
                 'documentacion.gestionar',
                 'configuracion.gestionar',
+                'personal.registrar',
+                'personal.modificar',
+                'nom035.registrar',
+                'nom035.modificar',
+                'reportes.exportar',
             ],
         ],
         'Auditor' => [
@@ -211,6 +238,8 @@ return [
                 'mantenimiento.ver',
                 'auditorias.ver',
                 'simulacros.ver',
+                'auditorias.registrar',
+                'auditorias.modificar',
             ],
         ],
     ],
