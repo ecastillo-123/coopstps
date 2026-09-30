@@ -18,6 +18,7 @@ class SistemaSeeder extends Seeder
 
         $permisos = collect(config('sistema.modulos'))
             ->pluck('permiso')
+            ->merge(config('sistema.permisos', []))
             ->filter()
             ->unique()
             ->values();

@@ -18,6 +18,8 @@ class PuestoSeeder extends Seeder
             ['clave' => 'JEF-SST', 'nombre' => 'Jefe de Seguridad y Salud en el Trabajo'],
             ['clave' => 'ANL-RH', 'nombre' => 'Analista de Recursos Humanos'],
             ['clave' => 'AUD-STPS', 'nombre' => 'Auditor STPS'],
+            ['clave' => 'GER-GEN', 'nombre' => 'Gerente General'],
+            ['clave' => 'RESP-SUC', 'nombre' => 'Responsable de sucursal'],
             ['clave' => 'COORD-OP', 'nombre' => 'Coordinador de Operaciones'],
         ];
 

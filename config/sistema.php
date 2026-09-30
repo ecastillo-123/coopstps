@@ -14,22 +14,47 @@ return [
     | El orden de este arreglo es el orden de aparición en cada barra.
     | 'ubicacion' => 'superior' coloca el módulo en la barra horizontal con
     | submenús desplegables al hacer clic; por defecto van al menú lateral.
-    | 'color' elige la paleta del botón superior (blue, emerald, amber, violet, rose).
+    | 'color' elige la paleta del botón superior (blue, indigo, emerald, amber).
+    | 'bloque' aplica un estilo distintivo a los módulos laterales (amber, sky).
     |
     */
 
     'modulos' => [
-        'administracion' => [
-            'nombre' => 'Administrador',
+        'informacion_general' => [
+            'nombre' => 'Información General del Centro de Trabajo',
             'ubicacion' => 'superior',
             'color' => 'blue',
-            'descripcion' => 'Centros de trabajo, usuarios y preferencias de avisos.',
+            'descripcion' => 'Expediente documental del centro de trabajo.',
+            'icono' => 'building',
+            'permiso' => 'informacion-general.ver',
+            'items' => [
+                ['nombre' => 'Escritura / Acta constitutiva', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Poderes notariales', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Constancia de situación fiscal', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Organigrama', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Descripción de puestos', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Reglamento interior', 'ruta' => null, 'implementado' => false],
+            ],
+        ],
+
+        'administrador' => [
+            'nombre' => 'Administrador',
+            'ubicacion' => 'superior',
+            'color' => 'indigo',
+            'descripcion' => 'Centros de trabajo, usuarios, preferencias y revisiones anuales.',
             'icono' => 'settings',
             'permiso' => 'administracion.gestionar',
             'items' => [
                 ['nombre' => 'Centros de trabajo', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Usuarios y permisos', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Usuarios y permisos', 'ruta' => 'admin.users.index', 'implementado' => true, 'rol' => 'Administrador'],
                 ['nombre' => 'Preferencias de avisos', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Revisión anual de asignaciones', 'ruta' => null, 'implementado' => false],
+                [
+                    'nombre' => 'Evidencia jurídica del DOF',
+                    'ruta' => 'admin.legal-evidence.index',
+                    'implementado' => true,
+                    'permiso' => 'legal-evidence.manage',
+                ],
             ],
         ],
 
@@ -37,139 +62,89 @@ return [
             'nombre' => 'Configuración',
             'ubicacion' => 'superior',
             'color' => 'emerald',
-            'descripcion' => 'Registros patronales, sucursales y estructura organizacional.',
+            'descripcion' => 'Registros patronales, sucursales, estructura organizacional y contratos.',
             'icono' => 'cog',
             'permiso' => 'configuracion.gestionar',
             'items' => [
                 ['nombre' => 'Registros patronales', 'ruta' => null, 'implementado' => false],
                 ['nombre' => 'Centros de trabajo / Sucursales', 'ruta' => null, 'implementado' => false],
                 ['nombre' => 'Estructura organizacional', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'documentacion' => [
-            'nombre' => 'Documentación',
-            'ubicacion' => 'superior',
-            'color' => 'amber',
-            'descripcion' => 'Expediente documental del centro de trabajo y cargas masivas.',
-            'icono' => 'archive',
-            'permiso' => 'documentacion.gestionar',
-            'items' => [
-                ['nombre' => 'Expediente del centro', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Carga masiva de datos', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'contractual' => [
-            'nombre' => 'Contractual',
-            'ubicacion' => 'superior',
-            'color' => 'violet',
-            'descripcion' => 'Contratos individuales y subcontratación (layout SAT).',
-            'icono' => 'document',
-            'permiso' => 'contractual.gestionar',
-            'items' => [
                 ['nombre' => 'Contratos individuales', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Subcontratación (SAT)', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Importar datos SAT', 'ruta' => null, 'implementado' => false],
             ],
         ],
 
         'colaboradores' => [
-            'nombre' => 'Colaboradores y Trabajadores',
+            'nombre' => 'Colaboradores / Trabajadores',
             'ubicacion' => 'superior',
-            'color' => 'rose',
-            'descripcion' => 'Administrador de colaboradores y trabajadores.',
+            'color' => 'amber',
+            'descripcion' => 'Administración de trabajadores, contratos y cargas masivas.',
             'icono' => 'users',
             'permiso' => 'colaboradores.gestionar',
             'items' => [
-                ['nombre' => 'Trabajadores', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Consultas especializadas', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Cargas masivas', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Trabajadores', 'ruta' => 'workforce.workers', 'implementado' => true],
+                ['nombre' => 'Contratos', 'ruta' => 'workforce.contracts', 'implementado' => true],
+                ['nombre' => 'Importar CSV', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Actualización masiva', 'ruta' => null, 'implementado' => false],
             ],
         ],
 
-        'relaciones' => [
+        'relaciones_laborales' => [
             'nombre' => 'Relaciones Laborales',
-            'descripcion' => 'Matriz del expediente laboral individual.',
+            'ubicacion' => 'lateral',
+            'bloque' => 'amber',
+            'descripcion' => 'Expediente laboral individual y consultas por estatus.',
             'icono' => 'folder',
             'permiso' => 'relaciones.gestionar',
             'items' => [
                 ['nombre' => 'Expediente individual', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Consultas por estatus', 'ruta' => null, 'implementado' => false],
             ],
         ],
 
-        'cumplimiento' => [
-            'nombre' => 'Cumplimiento',
-            'descripcion' => 'Núcleo de cumplimiento: tablero, indicadores, alertas y reportes.',
-            'icono' => 'gauge',
-            'permiso' => 'cumplimiento.ver',
-            'items' => [
-                ['nombre' => 'Tablero', 'ruta' => 'dashboard', 'implementado' => true],
-                ['nombre' => 'Indicadores y KPIs', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Alertas', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Reportes', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'seguridad' => [
-            'nombre' => 'Seguridad y Salud',
-            'descripcion' => 'Diagnóstico de NOMs aplicables, indicadores y sustancias químicas.',
+        'seguridad_salud' => [
+            'nombre' => 'Seguridad y Salud en el Trabajo',
+            'ubicacion' => 'lateral',
+            'bloque' => 'sky',
+            'descripcion' => 'SST, capacitación, auditorías y diagnóstico integral.',
             'icono' => 'shield',
             'permiso' => 'seguridad.ver',
             'items' => [
-                ['nombre' => 'Diagnóstico de NOMs', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'NOMs aplicables', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Indicadores por NOM', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Sustancias químicas', 'ruta' => null, 'implementado' => false],
+                ['nombre' => 'Hallazgos', 'ruta' => 'sst.findings', 'implementado' => true],
+                ['nombre' => 'Acciones correctivas', 'ruta' => 'sst.actions', 'implementado' => true],
+                ['nombre' => 'Comisiones SST', 'ruta' => 'sst.commissions', 'implementado' => true],
+                ['nombre' => 'Mantenimiento', 'ruta' => 'sst.maintenance', 'implementado' => true],
+                ['nombre' => 'Capacitación', 'ruta' => 'training.courses', 'implementado' => true],
+                ['nombre' => 'Inspecciones', 'ruta' => 'audit.inspections', 'implementado' => true],
+                ['nombre' => 'Auditorías', 'ruta' => 'audit.audits', 'implementado' => true],
+                ['nombre' => 'Diagnóstico integral', 'ruta' => 'audit.diagnosis', 'implementado' => true],
             ],
         ],
+    ],
 
-        'capacitacion' => [
-            'nombre' => 'Capacitación',
-            'descripcion' => 'Programa anual de cursos, bitácoras y evaluaciones.',
-            'icono' => 'academic',
-            'permiso' => 'capacitacion.ver',
-            'items' => [
-                ['nombre' => 'Cursos', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Bitácoras', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Evaluaciones', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Constancias y DC-3', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
+    /*
+    |---------------------------------------------------------------------------
+    | Permisos de acción independientes de la navegación
+    |---------------------------------------------------------------------------
+    |
+    | Acciones sensibles que no se renderizan como ítems de menú, pero que se
+    | sincronizan con el catálogo de permisos de Spatie.
+    |
+    */
 
-        'mantenimiento' => [
-            'nombre' => 'Mantenimiento',
-            'descripcion' => 'Mantenimiento preventivo y bitácoras de evidencia.',
-            'icono' => 'wrench',
-            'permiso' => 'mantenimiento.ver',
-            'items' => [
-                ['nombre' => 'Equipos y activos', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Revisiones programadas', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Bitácoras fotográficas', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'auditorias' => [
-            'nombre' => 'Auditorías STPS',
-            'descripcion' => 'Inspecciones, entrevistas de constatación e informes.',
-            'icono' => 'clipboard',
-            'permiso' => 'auditorias.ver',
-            'items' => [
-                ['nombre' => 'Inspecciones y recorridos', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Entrevistas', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Informes', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
-
-        'simulacros' => [
-            'nombre' => 'Simulacros',
-            'descripcion' => 'Programación y evaluación de simulacros NOM-002 y NOM-033.',
-            'icono' => 'fire',
-            'permiso' => 'simulacros.ver',
-            'items' => [
-                ['nombre' => 'Simulacros de incendio', 'ruta' => null, 'implementado' => false],
-                ['nombre' => 'Evidencia fotográfica', 'ruta' => null, 'implementado' => false],
-            ],
-        ],
+    'permisos' => [
+        'legal-evidence.manage',
+        'personal.registrar',
+        'personal.modificar',
+        'personal.eliminar',
+        'personal.aprobar',
+        'nom035.registrar',
+        'nom035.modificar',
+        'capacitacion.registrar',
+        'capacitacion.modificar',
+        'auditorias.registrar',
+        'auditorias.modificar',
+        'reportes.exportar',
     ],
 
     /*
@@ -189,28 +164,30 @@ return [
         'Usuario' => [
             'descripcion' => 'Operación de los módulos de cumplimiento, sin administración.',
             'permisos' => [
-                'cumplimiento.ver',
-                'seguridad.ver',
-                'capacitacion.ver',
-                'mantenimiento.ver',
-                'auditorias.ver',
-                'simulacros.ver',
+                'informacion-general.ver',
+                'administracion.gestionar',
+                'configuracion.gestionar',
                 'colaboradores.gestionar',
                 'relaciones.gestionar',
-                'contractual.gestionar',
-                'documentacion.gestionar',
-                'configuracion.gestionar',
+                'seguridad.ver',
+                'personal.registrar',
+                'personal.modificar',
+                'nom035.registrar',
+                'nom035.modificar',
+                'capacitacion.registrar',
+                'capacitacion.modificar',
+                'auditorias.registrar',
+                'auditorias.modificar',
+                'reportes.exportar',
             ],
         ],
         'Auditor' => [
             'descripcion' => 'Consulta y auditoría, sin capacidad de gestión.',
             'permisos' => [
-                'cumplimiento.ver',
+                'informacion-general.ver',
                 'seguridad.ver',
-                'capacitacion.ver',
-                'mantenimiento.ver',
-                'auditorias.ver',
-                'simulacros.ver',
+                'auditorias.registrar',
+                'auditorias.modificar',
             ],
         ],
     ],

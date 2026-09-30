@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Policies\SensitiveDataPolicy;
 use App\Support\CentroTrabajoContext;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        Gate::define('personal.register', [SensitiveDataPolicy::class, 'registerPersonal']);
+        Gate::define('personal.modify', [SensitiveDataPolicy::class, 'modifyPersonal']);
+        Gate::define('personal.delete', [SensitiveDataPolicy::class, 'deletePersonal']);
+        Gate::define('personal.approve', [SensitiveDataPolicy::class, 'approvePersonal']);
+        Gate::define('nom035.register', [SensitiveDataPolicy::class, 'registerNom035']);
+        Gate::define('nom035.modify', [SensitiveDataPolicy::class, 'modifyNom035']);
+        Gate::define('training.register', [SensitiveDataPolicy::class, 'registerTraining']);
+        Gate::define('training.modify', [SensitiveDataPolicy::class, 'modifyTraining']);
+        Gate::define('audit-inspection.write', [SensitiveDataPolicy::class, 'writeAuditInspection']);
+        Gate::define('reports.export', [SensitiveDataPolicy::class, 'exportReports']);
     }
 }
