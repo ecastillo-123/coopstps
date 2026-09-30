@@ -61,6 +61,18 @@ class SensitiveDataPolicy
             && $this->positionAllows($user, self::NOM035_POSITIONS);
     }
 
+    public function registerTraining(User $user): bool
+    {
+        return $this->hasActiveCenter($user)
+            && $user->hasPermissionTo('capacitacion.registrar');
+    }
+
+    public function modifyTraining(User $user): bool
+    {
+        return $this->hasActiveCenter($user)
+            && $user->hasPermissionTo('capacitacion.modificar');
+    }
+
     public function writeAuditInspection(User $user): bool
     {
         return $this->hasActiveCenter($user)

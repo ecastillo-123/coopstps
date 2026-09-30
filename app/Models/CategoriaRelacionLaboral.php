@@ -23,4 +23,12 @@ class CategoriaRelacionLaboral extends Model
     {
         return $this->hasMany(ContratoTrabajador::class);
     }
+
+    /**
+     * @return HasMany<CambioCicloLaboral, $this>
+     */
+    public function cambiosCicloLaboral(): HasMany
+    {
+        return $this->hasMany(CambioCicloLaboral::class);
+    }
 }

@@ -68,4 +68,36 @@ class CentroTrabajo extends Model
     {
         return $this->hasMany(Hallazgo::class);
     }
+
+    /**
+     * @return HasMany<Capacitacion, $this>
+     */
+    public function capacitaciones(): HasMany
+    {
+        return $this->hasMany(Capacitacion::class);
+    }
+
+    /**
+     * @return HasMany<Inspeccion, $this>
+     */
+    public function inspecciones(): HasMany
+    {
+        return $this->hasMany(Inspeccion::class);
+    }
+
+    /**
+     * @return HasMany<Auditoria, $this>
+     */
+    public function auditorias(): HasMany
+    {
+        return $this->hasMany(Auditoria::class);
+    }
+
+    /**
+     * @return HasMany<DiagnosticoIntegral, $this>
+     */
+    public function diagnosticosIntegrales(): HasMany
+    {
+        return $this->hasMany(DiagnosticoIntegral::class);
+    }
 }

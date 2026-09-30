@@ -28,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('personal.approve', [SensitiveDataPolicy::class, 'approvePersonal']);
         Gate::define('nom035.register', [SensitiveDataPolicy::class, 'registerNom035']);
         Gate::define('nom035.modify', [SensitiveDataPolicy::class, 'modifyNom035']);
+        Gate::define('training.register', [SensitiveDataPolicy::class, 'registerTraining']);
+        Gate::define('training.modify', [SensitiveDataPolicy::class, 'modifyTraining']);
         Gate::define('audit-inspection.write', [SensitiveDataPolicy::class, 'writeAuditInspection']);
         Gate::define('reports.export', [SensitiveDataPolicy::class, 'exportReports']);
     }

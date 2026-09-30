@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Database\Seeders\SistemaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class MenuModulosTest extends TestCase
@@ -12,31 +13,45 @@ class MenuModulosTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * Módulos que se muestran en la barra superior con submenús desplegables.
+     * Los cuatro grupos superiores definidos por la fuente.
      *
      * @var list<string>
      */
     private const MODULOS_SUPERIORES = [
-        'administracion',
+        'informacion_general',
+        'administrador',
         'configuracion',
-        'documentacion',
-        'contractual',
         'colaboradores',
     ];
 
     /**
-     * Módulos que se muestran en el menú lateral.
+     * Los dos bloques laterales definidos por la fuente.
      *
      * @var list<string>
      */
     private const MODULOS_LATERALES = [
-        'relaciones',
-        'cumplimiento',
-        'seguridad',
-        'capacitacion',
-        'mantenimiento',
-        'auditorias',
-        'simulacros',
+        'relaciones_laborales',
+        'seguridad_salud',
+    ];
+
+    /**
+     * Rutas de workflows ya implementados que deben aparecer en la navegación.
+     *
+     * @var list<string>
+     */
+    private const RUTAS_IMPLEMENTADAS = [
+        'admin.users.index',
+        'admin.legal-evidence.index',
+        'workforce.workers',
+        'workforce.contracts',
+        'sst.findings',
+        'sst.actions',
+        'sst.commissions',
+        'sst.maintenance',
+        'training.courses',
+        'audit.inspections',
+        'audit.audits',
+        'audit.diagnosis',
     ];
 
     private function usuarioAdministrador(): User
@@ -50,7 +65,8 @@ class MenuModulosTest extends TestCase
     }
 
     /**
-     * Devuelve el HTML comprendido entre dos marcadores de barra de navegación.
+     * Devuelve el HTML comprendido dentro de una barra de navegación,
+     * desde su marcador data-nav hasta el cierre de su etiqueta <nav>.
      */
     private function bloqueDeNavegacion(string $html, string $barra): string
     {
@@ -61,12 +77,12 @@ class MenuModulosTest extends TestCase
 
         $resto = substr($html, $inicio + strlen($desde));
 
-        $fin = strpos($resto, 'data-nav="');
+        $fin = strpos($resto, '</nav>');
 
-        return $fin === false ? $resto : substr($resto, 0, $fin);
+        return $fin === false ? $resto : substr($resto, 0, $fin + strlen('</nav>'));
     }
 
-    public function test_los_modulos_superiores_son_los_esperados(): void
+    public function test_los_modulos_superiores_son_los_cuatro_grupos_de_la_fuente(): void
     {
         $superiores = collect(config('sistema.modulos'))
             ->filter(fn (array $modulo): bool => ($modulo['ubicacion'] ?? 'lateral') === 'superior')
@@ -76,7 +92,7 @@ class MenuModulosTest extends TestCase
         $this->assertSame(self::MODULOS_SUPERIORES, $superiores);
     }
 
-    public function test_los_modulos_laterales_son_los_restantes(): void
+    public function test_los_modulos_laterales_son_los_dos_bloques_de_la_fuente(): void
     {
         $laterales = collect(config('sistema.modulos'))
             ->filter(fn (array $modulo): bool => ($modulo['ubicacion'] ?? 'lateral') !== 'superior')
@@ -96,7 +112,7 @@ class MenuModulosTest extends TestCase
         }
     }
 
-    public function test_la_barra_superior_muestra_los_modulos_con_sus_submenus(): void
+    public function test_la_barra_superior_muestra_los_cuatro_grupos_con_submenus(): void
     {
         $html = $this->actingAs($this->usuarioAdministrador())
             ->get('/dashboard')
@@ -105,18 +121,16 @@ class MenuModulosTest extends TestCase
 
         $superior = $this->bloqueDeNavegacion($html, 'superior');
 
-        foreach (['Administrador', 'Configuración', 'Documentación', 'Contractual', 'Colaboradores y Trabajadores'] as $nombre) {
+        foreach (['Información General', 'Administrador', 'Configuración', 'Colaboradores / Trabajadores'] as $nombre) {
             $this->assertStringContainsString($nombre, $superior);
         }
 
-        // Los submenús viajan con su módulo dentro de la barra superior.
-        $this->assertStringContainsString('Usuarios y permisos', $superior);
-        $this->assertStringContainsString('Registros patronales', $superior);
-        $this->assertStringContainsString('Contratos individuales', $superior);
+        // Los workflows implementados del grupo superior deben estar disponibles.
         $this->assertStringContainsString('Trabajadores', $superior);
+        $this->assertStringContainsString('Contratos', $superior);
     }
 
-    public function test_la_barra_superior_no_incluye_los_modulos_laterales(): void
+    public function test_la_barra_superior_no_incluye_los_bloques_laterales(): void
     {
         $html = $this->actingAs($this->usuarioAdministrador())
             ->get('/dashboard')
@@ -125,12 +139,12 @@ class MenuModulosTest extends TestCase
 
         $superior = $this->bloqueDeNavegacion($html, 'superior');
 
-        foreach (['Relaciones Laborales', 'Seguridad y Salud', 'Simulacros'] as $nombre) {
+        foreach (['Relaciones Laborales', 'Seguridad y Salud'] as $nombre) {
             $this->assertStringNotContainsString($nombre, $superior);
         }
     }
 
-    public function test_el_menu_lateral_conserva_los_modulos_secundarios(): void
+    public function test_el_menu_lateral_muestra_los_dos_bloques_de_la_fuente(): void
     {
         $html = $this->actingAs($this->usuarioAdministrador())
             ->get('/dashboard')
@@ -139,13 +153,37 @@ class MenuModulosTest extends TestCase
 
         $lateral = $this->bloqueDeNavegacion($html, 'lateral');
 
-        foreach (['Relaciones Laborales', 'Cumplimiento', 'Seguridad y Salud', 'Capacitación', 'Mantenimiento', 'Auditorías STPS', 'Simulacros'] as $nombre) {
+        foreach (['Relaciones Laborales', 'Seguridad y Salud en el Trabajo'] as $nombre) {
             $this->assertStringContainsString($nombre, $lateral);
         }
 
-        // Los módulos movidos a la barra superior ya no viven en el lateral.
-        $this->assertStringNotContainsString('Usuarios y permisos', $lateral);
-        $this->assertStringNotContainsString('Contratos individuales', $lateral);
+        // Los workflows implementados del bloque de seguridad deben estar disponibles.
+        foreach (['Hallazgos', 'Acciones correctivas', 'Capacitación', 'Auditorías', 'Diagnóstico integral'] as $nombre) {
+            $this->assertStringContainsString($nombre, $lateral);
+        }
+
+        // Los grupos superiores no viven en el lateral.
+        $this->assertStringNotContainsString('Colaboradores / Trabajadores', $lateral);
+        $this->assertStringNotContainsString('Configuración', $lateral);
+    }
+
+    public function test_los_workflows_implementados_tienen_rutas_en_la_navegacion(): void
+    {
+        $rutas = collect(config('sistema.modulos'))
+            ->pluck('items')
+            ->flatten(1)
+            ->filter(fn (array $item): bool => ($item['implementado'] ?? false) === true)
+            ->pluck('ruta')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        $this->assertSame(self::RUTAS_IMPLEMENTADAS, $rutas);
+
+        foreach ($rutas as $ruta) {
+            $this->assertTrue(Route::has($ruta), "La ruta [{$ruta}] no está registrada.");
+        }
     }
 
     public function test_cada_modulo_superior_declara_un_color_distinto(): void
@@ -172,10 +210,9 @@ class MenuModulosTest extends TestCase
 
         $clasesEsperadas = [
             'blue' => 'bg-blue-600',
+            'indigo' => 'bg-indigo-600',
             'emerald' => 'bg-emerald-600',
             'amber' => 'bg-amber-500',
-            'violet' => 'bg-violet-600',
-            'rose' => 'bg-rose-600',
         ];
 
         foreach (config('sistema.modulos') as $modulo) {
@@ -193,37 +230,41 @@ class MenuModulosTest extends TestCase
         }
     }
 
-    public function test_el_menu_lateral_tiene_fondo_azul_claro(): void
+    public function test_los_bloques_laterales_tienen_colores_distintos(): void
     {
         $html = $this->actingAs($this->usuarioAdministrador())
             ->get('/dashboard')
             ->assertOk()
             ->getContent();
 
-        $inicioAside = strpos($html, '<aside');
-        $marcaLateral = strpos($html, 'data-nav="lateral"');
+        $lateral = $this->bloqueDeNavegacion($html, 'lateral');
 
-        $this->assertNotFalse($inicioAside, 'No se encontró el menú lateral.');
-        $this->assertNotFalse($marcaLateral, 'No se encontró la barra lateral.');
+        // Relaciones Laborales se representa con tonos ámbar (carpeta amarilla).
+        $this->assertStringContainsString('amber', $lateral);
 
-        $aside = substr($html, $inicioAside, $marcaLateral - $inicioAside);
-
-        $this->assertStringContainsString('bg-sky-50', $aside);
+        // Seguridad y Salud se representa con tonos azules.
+        $this->assertStringContainsString('sky', $lateral);
     }
 
     public function test_un_usuario_sin_permisos_no_ve_modulos_administrativos(): void
     {
         $user = User::factory()->create();
 
-        $this->actingAs($user)
+        $html = $this->actingAs($user)
             ->get('/dashboard')
             ->assertOk()
-            ->assertDontSee('Usuarios y permisos')
-            ->assertDontSee('Preferencias de avisos')
-            ->assertDontSee('Registros patronales');
+            ->getContent();
+
+        $superior = $this->bloqueDeNavegacion($html, 'superior');
+        $lateral = $this->bloqueDeNavegacion($html, 'lateral');
+
+        foreach (['Usuarios y permisos', 'Registros patronales', 'Trabajadores'] as $nombre) {
+            $this->assertStringNotContainsString($nombre, $superior);
+            $this->assertStringNotContainsString($nombre, $lateral);
+        }
     }
 
-    public function test_un_auditor_no_ve_modulos_de_gestion(): void
+    public function test_un_auditor_ve_solo_los_modulos_que_le_corresponden(): void
     {
         $this->seed(SistemaSeeder::class);
 
@@ -233,8 +274,21 @@ class MenuModulosTest extends TestCase
         $this->actingAs($user)
             ->get('/dashboard')
             ->assertOk()
-            ->assertSee('Auditorías STPS')
+            ->assertSee('Seguridad y Salud en el Trabajo')
             ->assertDontSee('Usuarios y permisos')
-            ->assertDontSee('Contratos individuales');
+            ->assertDontSee('Configuración')
+            ->assertDontSee('Colaboradores / Trabajadores');
+    }
+
+    public function test_unsupported_page_24_route_returns_404(): void
+    {
+        $this->seed(SistemaSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('Usuario');
+
+        $this->actingAs($user)
+            ->get('/page-24-undefined-module')
+            ->assertNotFound();
     }
 }

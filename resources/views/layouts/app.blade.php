@@ -15,14 +15,29 @@
         ->contains(fn ($item) => $item['ruta'] !== null && $item['ruta'] === $rutaActual);
 
     // Clases literales para que Tailwind las detecte al compilar.
-    $paleta = [
+    $paletaSuperior = [
         'blue' => ['bg-blue-600 hover:bg-blue-500', 'text-blue-700 border-blue-200'],
+        'indigo' => ['bg-indigo-600 hover:bg-indigo-500', 'text-indigo-700 border-indigo-200'],
         'emerald' => ['bg-emerald-600 hover:bg-emerald-500', 'text-emerald-700 border-emerald-200'],
         'amber' => ['bg-amber-500 hover:bg-amber-400', 'text-amber-700 border-amber-200'],
-        'violet' => ['bg-violet-600 hover:bg-violet-500', 'text-violet-700 border-violet-200'],
-        'rose' => ['bg-rose-600 hover:bg-rose-500', 'text-rose-700 border-rose-200'],
     ];
-    $paletaDe = fn (array $modulo): array => $paleta[$modulo['color'] ?? 'blue'] ?? $paleta['blue'];
+    $paletaDe = fn (array $modulo): array => $paletaSuperior[$modulo['color'] ?? 'blue'] ?? $paletaSuperior['blue'];
+
+    $paletaLateral = [
+        'amber' => [
+            'header' => 'text-amber-900/70',
+            'item-active' => 'bg-amber-500 text-white shadow-sm',
+            'item-inactive' => 'text-amber-900 hover:bg-amber-100 hover:text-amber-950',
+            'badge' => 'bg-amber-100 text-amber-700',
+        ],
+        'sky' => [
+            'header' => 'text-sky-900/70',
+            'item-active' => 'bg-sky-600 text-white shadow-sm',
+            'item-inactive' => 'text-slate-700 hover:bg-white hover:text-sky-800',
+            'badge' => 'bg-sky-100 text-sky-700',
+        ],
+    ];
+    $clasesLateral = fn (array $modulo): array => $paletaLateral[$modulo['bloque'] ?? 'sky'] ?? $paletaLateral['sky'];
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
@@ -111,22 +126,26 @@
                                 @foreach ($modulo['items'] as $item)
                                     @php
                                         $disponible = $item['implementado'] && $item['ruta'] !== null && Route::has($item['ruta']);
+                                        $visible = (! isset($item['permiso']) || auth()->user()->can($item['permiso']))
+                                            && (! isset($item['rol']) || auth()->user()->hasRole($item['rol']));
                                     @endphp
-                                    <li>
-                                        @if ($disponible)
-                                            <a href="{{ route($item['ruta']) }}"
-                                               class="block px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100">
-                                                {{ $item['nombre'] }}
-                                            </a>
-                                        @else
-                                            <span class="flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-slate-400">
-                                                <span>{{ $item['nombre'] }}</span>
-                                                <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
-                                                    Pronto
+                                    @if ($visible)
+                                        <li>
+                                            @if ($disponible)
+                                                <a href="{{ route($item['ruta']) }}"
+                                                   class="block px-3 py-1.5 text-sm text-slate-700 transition hover:bg-slate-100">
+                                                    {{ $item['nombre'] }}
+                                                </a>
+                                            @else
+                                                <span class="flex items-center justify-between gap-2 px-3 py-1.5 text-sm text-slate-400">
+                                                    <span>{{ $item['nombre'] }}</span>
+                                                    <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+                                                        Pronto
+                                                    </span>
                                                 </span>
-                                            </span>
-                                        @endif
-                                    </li>
+                                            @endif
+                                        </li>
+                                    @endif
                                 @endforeach
                             </ul>
                         </div>
@@ -160,37 +179,44 @@
                 </button>
             </div>
 
-            <nav data-nav="lateral" class="flex-1 space-y-5 px-3 py-4">
+            <nav data-nav="lateral" class="flex-1 space-y-6 px-3 py-4">
                 @foreach ($modulosLaterales as $clave => $modulo)
                     @can($modulo['permiso'])
-                        <div>
-                            <p class="px-3 text-[11px] font-semibold uppercase tracking-wider text-sky-900/60">
+                        @php
+                            $clases = $clasesLateral($modulo);
+                        @endphp
+                        <div class="rounded-lg border border-slate-200/60 bg-white p-2 shadow-sm">
+                            <p class="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider {{ $clases['header'] }}">
                                 {{ $modulo['nombre'] }}
                             </p>
-                            <ul class="mt-1.5 space-y-0.5">
+                            <ul class="mt-1 space-y-0.5">
                                 @foreach ($modulo['items'] as $item)
                                     @php
                                         $disponible = $item['implementado'] && $item['ruta'] !== null && Route::has($item['ruta']);
+                                        $visible = (! isset($item['permiso']) || auth()->user()->can($item['permiso']))
+                                            && (! isset($item['rol']) || auth()->user()->hasRole($item['rol']));
                                     @endphp
-                                    <li>
-                                        @if ($disponible)
-                                            <a href="{{ route($item['ruta']) }}"
-                                               @class([
-                                                   'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition',
-                                                   'bg-sky-600 font-medium text-white shadow-sm' => $rutaActual === $item['ruta'],
-                                                   'text-slate-700 hover:bg-white hover:text-sky-800' => $rutaActual !== $item['ruta'],
-                                               ])>
-                                                {{ $item['nombre'] }}
-                                            </a>
-                                        @else
-                                            <span class="flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm text-slate-400">
-                                                <span>{{ $item['nombre'] }}</span>
-                                                <span class="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-sky-700">
-                                                    Pronto
+                                    @if ($visible)
+                                        <li>
+                                            @if ($disponible)
+                                                <a href="{{ route($item['ruta']) }}"
+                                                   @class([
+                                                        'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition',
+                                                        $clases['item-active'] => $rutaActual === $item['ruta'],
+                                                        $clases['item-inactive'] => $rutaActual !== $item['ruta'],
+                                                    ])>
+                                                    {{ $item['nombre'] }}
+                                                </a>
+                                            @else
+                                                <span class="flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm text-slate-400">
+                                                    <span>{{ $item['nombre'] }}</span>
+                                                    <span class="rounded {{ $clases['badge'] }} px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+                                                        Pronto
+                                                    </span>
                                                 </span>
-                                            </span>
-                                        @endif
-                                    </li>
+                                            @endif
+                                        </li>
+                                    @endif
                                 @endforeach
                             </ul>
                         </div>

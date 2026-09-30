@@ -4,12 +4,16 @@ use App\Models\CategoriaRelacionLaboral;
 use App\Models\ModalidadContrato;
 use App\Models\PlantillaContrato;
 use App\Support\CentroTrabajoContext;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 new #[Layout('layouts::app')] #[Title('Contratos del personal')] class extends Component {
-    //
+    public function boot(): void
+    {
+        Gate::authorize('personal.modify');
+    }
 };
 ?>
 

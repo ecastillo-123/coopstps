@@ -152,4 +152,32 @@ class RoleScopedAccessTest extends TestCase
             ->post(route('reports.export'))
             ->assertForbidden();
     }
+
+    public function test_guest_is_redirected_to_login_for_training_and_audit_routes(): void
+    {
+        $this->get(route('training.courses'))->assertRedirect('/login');
+        $this->post(route('training.courses.store'))->assertRedirect('/login');
+        $this->get(route('audit.inspections'))->assertRedirect('/login');
+        $this->post(route('audit.inspections.store'))->assertRedirect('/login');
+    }
+
+    public function test_auditor_is_denied_training_write(): void
+    {
+        $user = $this->userWithPosition(null, 'Auditor');
+
+        $this->actingAs($user)
+            ->post(route('training.courses.store'), [
+                'nombre' => 'Curso de alturas',
+            ])
+            ->assertForbidden();
+    }
+
+    public function test_non_auditor_role_is_denied_audit_inspection_write(): void
+    {
+        $user = $this->userWithPosition(null, 'Usuario');
+
+        $this->actingAs($user)
+            ->post(route('audit-inspection.write'))
+            ->assertForbidden();
+    }
 }

@@ -17,6 +17,7 @@ use Database\Seeders\CentroTrabajoSeeder;
 use Database\Seeders\PuestoSeeder;
 use Database\Seeders\SistemaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class SstComplianceTest extends TestCase
@@ -56,6 +57,31 @@ class SstComplianceTest extends TestCase
         return $user;
     }
 
+    /**
+     * @param  array<string, mixed>  $overrides
+     */
+    private function createEvidenceForBothGates(User $administrator, array $overrides = []): void
+    {
+        foreach (['legal_nom_activation', 'indefinite_retention'] as $topic) {
+            LegalEvidence::create(array_merge([
+                'topic' => $topic,
+                'reference' => 'DOF 2026-01-15 art. 123',
+                'evidence_url' => 'https://dof.gob.mx/nota_detalle.php?codigo=123',
+                'verified_by_user_id' => $administrator->id,
+                'approved_by_user_id' => $administrator->id,
+                'approved' => true,
+                'approved_at' => now(),
+                'effective_at' => '2026-01-15',
+            ], $overrides));
+        }
+    }
+
+    private function assertBothLegalGatesAreClosed(): void
+    {
+        $this->assertFalse(LegalNomGate::isActive());
+        $this->assertFalse(IndefiniteRetentionGate::isEnabled());
+    }
+
     public function test_annual_review_can_be_recorded_by_administrator(): void
     {
         $admin = $this->administrator();
@@ -72,6 +98,24 @@ class SstComplianceTest extends TestCase
             'year' => 2026,
             'outcome' => 'approved',
             'reviewed_by_user_id' => $admin->id,
+        ]);
+    }
+
+    public function test_user_with_administration_permission_cannot_record_annual_review(): void
+    {
+        $user = $this->sstUser();
+        $this->assertTrue($user->hasPermissionTo('administracion.gestionar'));
+
+        $this->actingAs($user)
+            ->post(route('annual-review.store'), [
+                'year' => 2026,
+                'outcome' => 'approved',
+                'notes' => 'Review submitted by a regular user.',
+            ])
+            ->assertForbidden();
+
+        $this->assertDatabaseMissing('annual_reviews', [
+            'year' => 2026,
         ]);
     }
 
@@ -130,6 +174,7 @@ class SstComplianceTest extends TestCase
 
     public function test_legal_nom_automation_is_enabled_after_approved_dof_evidence(): void
     {
+        $this->travelTo('2026-09-29 12:00:00');
         $admin = $this->administrator();
 
         LegalEvidence::create([
@@ -169,11 +214,13 @@ class SstComplianceTest extends TestCase
 
     public function test_indefinite_retention_is_enabled_after_approved_evidence(): void
     {
+        $this->travelTo('2026-09-29 12:00:00');
         $admin = $this->administrator();
 
         LegalEvidence::create([
             'topic' => 'indefinite_retention',
             'reference' => 'DOF 2026-01-15 art. 123',
+            'evidence_url' => 'https://dof.gob.mx/nota_detalle.php?codigo=123',
             'verified_by_user_id' => $admin->id,
             'approved_by_user_id' => $admin->id,
             'approved' => true,
@@ -182,6 +229,108 @@ class SstComplianceTest extends TestCase
         ]);
 
         $this->assertTrue(IndefiniteRetentionGate::isEnabled());
+    }
+
+    public static function incompleteDofProvenance(): array
+    {
+        return [
+            'missing source URL' => [['evidence_url' => null]],
+            'non-official source URL' => [['evidence_url' => 'https://example.org/legal-source']],
+            'blank legal reference' => [['reference' => '   ']],
+        ];
+    }
+
+    #[DataProvider('incompleteDofProvenance')]
+    public function test_both_legal_gates_reject_evidence_without_trustworthy_dof_provenance(array $overrides): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), $overrides);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_without_a_verifier(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['verified_by_user_id' => null]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_without_administrator_approval(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['approved_by_user_id' => null]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_verified_by_a_non_administrator(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $administrator = $this->administrator();
+        $nonAdministrator = User::factory()->create();
+        $this->createEvidenceForBothGates($administrator, ['verified_by_user_id' => $nonAdministrator->id]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_approved_by_a_non_administrator(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $administrator = $this->administrator();
+        $nonAdministrator = User::factory()->create();
+        $this->createEvidenceForBothGates($administrator, ['approved_by_user_id' => $nonAdministrator->id]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_without_an_approval_timestamp(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['approved_at' => null]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_without_an_effective_date(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['effective_at' => null]);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_reject_evidence_that_is_not_yet_effective(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['effective_at' => '2026-09-30']);
+
+        $this->assertBothLegalGatesAreClosed();
+    }
+
+    public function test_both_legal_gates_keep_unrevoked_administrator_approval_without_time_based_expiry(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator(), ['approved_at' => '2020-01-01 00:00:00']);
+
+        $this->assertTrue(LegalNomGate::isActive());
+        $this->assertTrue(IndefiniteRetentionGate::isEnabled());
+    }
+
+    public function test_both_legal_gates_close_immediately_after_administrator_revokes_approval(): void
+    {
+        $this->travelTo('2026-09-29 12:00:00');
+        $this->createEvidenceForBothGates($this->administrator());
+
+        $this->assertTrue(LegalNomGate::isActive());
+        $this->assertTrue(IndefiniteRetentionGate::isEnabled());
+
+        LegalEvidence::query()
+            ->whereIn('topic', ['legal_nom_activation', 'indefinite_retention'])
+            ->update(['approved' => false]);
+
+        $this->assertBothLegalGatesAreClosed();
     }
 
     public function test_unverified_or_unapproved_evidence_keeps_retention_disabled(): void

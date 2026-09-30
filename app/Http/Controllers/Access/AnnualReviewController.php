@@ -6,13 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\AnnualReview;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
 
 class AnnualReviewController extends Controller
 {
     public function store(Request $request): Response
     {
-        Gate::authorize('administracion.gestionar');
+        abort_unless($request->user()?->hasRole('Administrador'), 403);
 
         $datos = $request->validate([
             'year' => ['required', 'integer', 'min:2000'],
